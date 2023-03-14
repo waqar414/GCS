@@ -1,0 +1,89 @@
+{% extends "Dashboard.html" %}
+
+{% block content %}
+<style>
+    .calculation-box {
+    height: 175px;
+    width: 175px;
+    position: absolute;
+    bottom: 40px;
+    left: 500px;
+    background-color: rgba(12, 73, 241, 0.9);
+    padding: 15px;
+    text-align: center;
+    color: white;
+    border-radius: 10px;
+    }
+    p {
+    font-family: 'Open Sans';
+    margin: 0;
+    font-size: 13px;
+    }
+        #map { 
+             width: 100%;
+             height: 91vh; 
+            }
+        
+</style>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.css" type="text/css">
+    <div id="map"></div>
+    <div class="calculation-box">
+    <p>Click the map to draw a polygon.</p>
+    <div id="calculated-area"></div>
+    </div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1Ijoid2FxYXJtdW4iLCJhIjoiY2xmNnB0MnZ3MHhjMjN5cWh3YWtnMHZsMyJ9.DdA5uGyoRwdIZp9u0hK-SA';
+    const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/satellite-streets-v12', 
+    center: [74.24076031193948, 31.39222922632956],
+    zoom: 17 // starting zoom
+    });
+     
+    const draw = new MapboxDraw({
+    displayControlsDefault: false,
+    // Select which mapbox-gl-draw control buttons to add to the map.
+    controls: {
+    polygon: true,
+    trash: true
+    },
+    // Set mapbox-gl-draw to draw by default.
+    // The user does not have to click the polygon control button first.
+    defaultMode: 'draw_polygon'
+    });
+    map.addControl(draw);
+     
+    map.on('draw.create', updateArea);
+    map.on('draw.delete', updateArea);
+    map.on('draw.update', updateArea);
+     
+    function updateArea(e) {
+    const data = draw.getAll();
+    cor=data['features'][0]['geometry']['coordinates'][0];
+    const answer = document.getElementById('calculated-area');
+    if (data.features.length > 0) {
+    const area = turf.area(data);
+    
+    const rounded_area = Math.round(area * 100) / 100;
+    answer.innerHTML = `<p><strong>${cor[0]}</strong></p><p>square meters</p>`;
+    } else {
+    answer.innerHTML = '';
+    if (e.type !== 'draw.delete')
+    alert('Click the map to draw a polygon.');
+    }
+    }
+    </script>
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
